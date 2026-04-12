@@ -1,24 +1,26 @@
 #!/usr/bin/env node
 // ════════════════════════════════════════════════════════
-//  本草藥典  自動更新腳本  v1.0
+//  本草藥典  自動更新腳本  v1.1
 // ════════════════════════════════════════════════════════
 //
 //  使用方式：
-//    node update.js              掃描新 .md 並同步至 GitHub
+//    node update.js              掃描新 .md 並同步至 GitHub（需 API）
+//    node update.js --add        手動新增資料（不需 API）
+//    node update.js --push-only  直接推送目前變更
 //    node update.js --preview    預覽將新增的資料（不寫入）
 //    node update.js --no-push    更新本地，不推送
-//    node update.js --push-only  直接推送目前變更，不解析 .md
 //
-//  前置需求：
-//    npm install          （安裝 @anthropic-ai/sdk）
+//  前置需求（--add 模式不需要）：
+//    npm install
 //    設定環境變數：ANTHROPIC_API_KEY=sk-ant-你的金鑰
 //
 // ════════════════════════════════════════════════════════
 
 'use strict';
 
-const fs          = require('fs');
-const path        = require('path');
+const fs           = require('fs');
+const path         = require('path');
+const readline     = require('readline');
 const { execSync } = require('child_process');
 
 const DIR      = __dirname;
@@ -32,24 +34,159 @@ const VALID_SYMPTOMS = [
   '降脂減重','腰膝酸軟',
 ];
 
-// ── 引數解析 ──────────────────────────────────────��────
+// ── 引數解析 ─────────────────────────────────────────────
 const args      = process.argv.slice(2);
 const PREVIEW   = args.includes('--preview');
 const NO_PUSH   = args.includes('--no-push');
 const PUSH_ONLY = args.includes('--push-only');
+const ADD_MODE  = args.includes('--add');
 
 if (args.includes('--help') || args.includes('-h')) {
   console.log([
     '',
     '本草藥典  自動更新腳本',
     '',
-    '  node update.js              掃描新 .md 並同步至 GitHub',
+    '  node update.js              掃描新 .md 並同步至 GitHub（需 API）',
+    '  node update.js --add        手動新增資料（不需 API）',
+    '  node update.js --push-only  直接推送目前變更',
     '  node update.js --preview    預覽將新增資料（不寫入）',
     '  node update.js --no-push    更新本地，不推送',
-    '  node update.js --push-only  直接推送目前變更',
     '',
   ].join('\n'));
   process.exit(0);
+}
+
+// ══════════════════════════════════════════════════════
+// 互動式手動新增（--add 模式，不需 API）
+// ══════════════════════════════════════════════════════
+function ask(rl, question) {
+  return new Promise(resolve => rl.question(question, resolve));
+}
+
+function parseList(str) {
+  return str.split(/[,，、]/).map(s => s.trim()).filter(Boolean);
+}
+
+async function manualAdd() {
+  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const p  = q => ask(rl, q);
+
+  console.log('\n╔══════════════════════════════════════╗');
+  console.log('║   手動新增資料模式（不需 API）        ║');
+  console.log('╚══════════════════════════════════════╝');
+  console.log('提示：多個項目請用「、」或「,」分隔\n');
+
+  // 選擇類型
+  console.log('請選擇資料類型：');
+  console.log('  1. 藥材（herb）');
+  console.log('  2. 養生茶飲（tea）');
+  console.log('  3. 方劑（formula）');
+  const typeChoice = (await p('\n輸入 1 / 2 / 3：')).trim();
+  const typeMap    = { '1': 'herb', '2': 'tea', '3': 'formula' };
+  const itype      = typeMap[typeChoice];
+  if (!itype) { console.log('✗ 無效選擇'); rl.close(); return null; }
+
+  let data = {};
+
+  if (itype === 'herb') {
+    data.id              = 'TEMP';
+    data.name            = (await p('藥材名稱：')).trim();
+    data.category        = (await p('分類（如：補氣藥、清熱藥）：')).trim();
+    data.nature          = (await p('藥性（溫/平/涼/寒）：')).trim();
+    data.flavor          = (await p('味道（如：甘、苦）：')).trim();
+    data.meridians       = parseList(await p('歸經（如：脾、肺）：'));
+    data.effects         = parseList(await p('功效（如：補氣健脾、止咳）：'));
+    data.indications     = (await p('主治：')).trim();
+    data.contraindications = (await p('禁忌：')).trim();
+    data.commonPairings  = parseList(await p('常見搭配（可留空）：'));
+    data.symptoms        = await pickSymptoms(p);
+  }
+
+  if (itype === 'tea') {
+    data.id              = 'TEMP';
+    data.name            = (await p('茶飲名稱：')).trim();
+    data.category        = (await p('分類（如：補氣養血、清熱降火）：')).trim();
+    data.difficulty      = (await p('難易度（簡易/中等/稍複雜）：')).trim() || '簡易';
+    data.effects         = parseList(await p('功效：'));
+    data.indications     = (await p('適用情況：')).trim();
+    data.bestTime        = (await p('最佳飲用時間（如：飯後、睡前）：')).trim();
+    data.contraindications = (await p('禁忌：')).trim();
+    data.suitableFor     = parseList(await p('適合族群（可留空）：'));
+    data.seasons         = await pickSeasons(p);
+    data.symptoms        = await pickSymptoms(p);
+    data.tags            = parseList(await p('標籤（可留空）：'));
+
+    // 食材
+    data.ingredients = [];
+    console.log('\n── 食材清單（輸入空白結束）──');
+    while (true) {
+      const item   = (await p('  食材名稱（空白結束）：')).trim();
+      if (!item) break;
+      const amount = (await p(`  ${item} 份量：`)).trim();
+      data.ingredients.push({ item, amount });
+    }
+
+    // 步驟
+    data.instructions = [];
+    console.log('\n── 調製步驟（輸入空白結束）──');
+    let step = 1;
+    while (true) {
+      const s = (await p(`  步驟 ${step}（空白結束）：`)).trim();
+      if (!s) break;
+      data.instructions.push(s);
+      step++;
+    }
+
+    data.pairings = [];
+  }
+
+  if (itype === 'formula') {
+    data.id              = 'TEMP';
+    data.name            = (await p('方劑名稱：')).trim();
+    data.category        = (await p('分類（如：補氣劑、清熱劑）：')).trim();
+    data.herbs           = parseList(await p('組成藥材（如：人參、白朮、茯苓）：'));
+    data.dosage          = (await p('劑量（如：人參9g、白朮9g）：')).trim();
+    data.effects         = parseList(await p('功效：'));
+    data.indications     = (await p('主治：')).trim();
+    data.contraindications = (await p('禁忌：')).trim();
+    data.source          = (await p('出處（如：《傷寒論》）：')).trim();
+    data.tags            = parseList(await p('標籤（可留空）：'));
+    data.symptoms        = await pickSymptoms(p);
+
+    // 調製步驟
+    data.instructions = [];
+    console.log('\n── 調製步驟（輸入空白結束）──');
+    let step = 1;
+    while (true) {
+      const s = (await p(`  步驟 ${step}（空白結束）：`)).trim();
+      if (!s) break;
+      data.instructions.push(s);
+      step++;
+    }
+  }
+
+  rl.close();
+
+  if (!data.name) { console.log('✗ 名稱不可為空'); return null; }
+  return [{ type: itype, data }];
+}
+
+async function pickSymptoms(p) {
+  console.log('\n── 適用症狀（輸入編號，多個用逗號分隔，可留空）──');
+  VALID_SYMPTOMS.forEach((s, i) => process.stdout.write(`  ${i+1}.${s}  `));
+  process.stdout.write('\n');
+  const input = (await p('  輸入編號：')).trim();
+  if (!input) return [];
+  return input.split(/[,，、\s]+/)
+    .map(n => VALID_SYMPTOMS[parseInt(n, 10) - 1])
+    .filter(Boolean);
+}
+
+async function pickSeasons(p) {
+  const map = { '1':'spring','2':'summer','3':'autumn','4':'winter' };
+  const input = (await p('適用季節（1春 2夏 3秋 4冬，多個用逗號，空白=全年）：')).trim();
+  if (!input) return ['spring','summer','autumn','winter'];
+  return input.split(/[,，、\s]+/).map(n => map[n]).filter(Boolean);
 }
 
 // ══════════════════════════════════════════════════════
@@ -260,11 +397,31 @@ function applyItems(items, preview = false) {
 // ══════════════════════════════════════════════════════
 async function main() {
   console.log('╔══════════════════════════════════════╗');
-  console.log('║   本草藥典  自動更新腳本  v1.0        ║');
+  console.log('║   本草藥典  自動更新腳本  v1.1        ║');
   console.log('╚══════════════════════════════════════╝\n');
 
   const manifest = loadManifest();
   let   allAdded = [];
+
+  // ── 手動新增模式（不需 API）────────────────────────
+  if (ADD_MODE) {
+    const items = await manualAdd();
+    if (items) {
+      const added = applyItems(items, PREVIEW);
+      allAdded = allAdded.concat(added);
+    }
+    if (PREVIEW) { console.log('\n（預覽模式：未寫入任何資料）'); return; }
+    if (allAdded.length === 0) return;
+    // 直接進入 git 推送
+    console.log('\n📦 同步至 GitHub...');
+    const now = new Date().toLocaleString('zh-TW', {
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', hour12: false,
+    }).replace(/\//g, '-');
+    gitCommitPush(`新增資料：${allAdded.join('、')}（${now}）`, !NO_PUSH);
+    console.log('\n🎉 完成！');
+    return;
+  }
 
   // ── 步驟 1：掃描並解析新 .md 檔案 ──────────────────
   if (!PUSH_ONLY) {

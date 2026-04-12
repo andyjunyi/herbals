@@ -5,6 +5,7 @@
   "main": "app.js",
   "scripts": {
     "update": "node update.js",
+    "add": "node update.js --add",
     "preview": "node update.js --preview",
     "push-only": "node update.js --push-only"
   },
