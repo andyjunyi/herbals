@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>本草藥典 — 中醫中藥搭配查詢系統</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@400;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ===== Header ===== -->
+<header>
+  <div class="header-inner">
+    <div class="header-top">
+      <div class="logo">
+        <div class="logo-icon">🌿</div>
+        <div class="logo-text">
+          <h1>本草藥典</h1>
+          <p>中醫中藥搭配查詢與資料管理系統</p>
+        </div>
+      </div>
+      <div class="header-stats">
+        <div class="stat-item">
+          <span class="stat-num" id="stat-formulas">0</span>
+          <span class="stat-label">方劑</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" id="stat-herbs">0</span>
+          <span class="stat-label">藥材</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" id="stat-teas">0</span>
+          <span class="stat-label">茶飲</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="search-bar">
+      <input
+        type="text"
+        id="search-input"
+        placeholder="搜尋方劑、藥材、症狀、功效、分類..."
+        autocomplete="off"
+      >
+      <button class="btn btn-primary" onclick="doSearch()">搜尋</button>
+    </div>
+  </div>
+</header>
+
+<!-- ===== Seasonal Banner ===== -->
+<section id="season-banner">
+  <!-- 動態渲染 -->
+</section>
+
+<!-- ===== Symptom Panel ===== -->
+<section id="symptom-panel">
+  <div class="symptom-panel-inner">
+    <div class="symptom-panel-header">
+      <span class="symptom-panel-title">依症狀查詢</span>
+      <button class="symptom-clear-btn" id="symptom-clear-btn" onclick="clearSymptom()" style="display:none">✕ 清除篩選</button>
+    </div>
+    <div class="symptom-chips" id="symptom-chips">
+      <!-- 動態渲染 -->
+    </div>
+  </div>
+</section>
+
+<!-- ===== View Tabs ===== -->
+<div class="view-tabs-bar">
+  <div class="view-tabs-inner">
+    <div class="view-tabs">
+      <button class="view-tab active" data-view="all" onclick="switchView('all')">
+        <span class="tab-icon">🗂️</span> 全部
+      </button>
+      <button class="view-tab" data-view="formula" onclick="switchView('formula')">
+        <span class="tab-icon">📜</span> 方劑
+      </button>
+      <button class="view-tab" data-view="herb" onclick="switchView('herb')">
+        <span class="tab-icon">🌿</span> 藥材
+      </button>
+      <button class="view-tab" data-view="tea" onclick="switchView('tea')">
+        <span class="tab-icon">🍵</span> 養生茶飲
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Toolbar ===== -->
+<nav class="toolbar">
+  <div class="toolbar-inner">
+    <span class="toolbar-label">篩選：</span>
+    <div class="filter-scroll" id="category-filters">
+      <!-- 動態生成 -->
+    </div>
+    <div class="toolbar-actions">
+      <button id="add-formula-btn" class="btn btn-outline" onclick="openAddModal('formula')">
+        <span>📜</span> <span class="btn-text">新增方劑</span>
+      </button>
+      <button id="add-herb-btn" class="btn btn-outline" onclick="openAddModal('herb')">
+        <span>🌿</span> <span class="btn-text">新增藥材</span>
+      </button>
+      <button id="add-tea-btn" class="btn btn-outline btn-tea-add" onclick="openAddModal('tea')" style="display:none">
+        <span>🍵</span> <span class="btn-text">新增茶飲</span>
+      </button>
+      <button class="btn btn-reset" onclick="resetData()" title="重置至初始資料">↺ 重置</button>
+    </div>
+  </div>
+</nav>
+
+<!-- ===== Main Content ===== -->
+<main>
+  <div id="results">
+    <!-- 動態渲染 -->
+  </div>
+</main>
+
+<!-- ===== Detail Modal ===== -->
+<div class="modal-overlay" id="detail-modal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="modal-title"></h2>
+      <button class="modal-close" onclick="closeModal()" aria-label="關閉">✕</button>
+    </div>
+    <div class="modal-body" id="modal-body">
+    </div>
+  </div>
+</div>
+
+<!-- ===== Add Modal ===== -->
+<div class="modal-overlay" id="add-modal" role="dialog" aria-modal="true">
+  <div class="modal">
+    <div class="modal-header">
+      <h2 id="add-modal-title">新增資料</h2>
+      <button class="modal-close" onclick="closeAddModal()" aria-label="關閉">✕</button>
+    </div>
+    <div class="modal-body" id="add-modal-body">
+    </div>
+  </div>
+</div>
+
+<!-- ===== Toast ===== -->
+<div id="toast"></div>
+
+<!-- ===== Footer ===== -->
+<footer>
+  <p>本草藥典 · 中醫中藥搭配查詢系統 · 資料僅供參考，請以專業中醫師診斷為準</p>
+</footer>
+
+<script src="data.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
