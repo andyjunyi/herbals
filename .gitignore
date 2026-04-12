@@ -10,6 +10,9 @@ Thumbs.db
 .update_manifest.json
 .claude/
 
+# 個人手冊（本機保留，不上傳）
+手冊.md
+
 # Node.js
 node_modules/
 package-lock.json
