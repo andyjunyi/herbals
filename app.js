@@ -422,7 +422,6 @@ function showFormulaDetail(id) {
       <div>${f.tags.map(t => `<span class="tag-chip" onclick="searchTag('${escapeHtml(t)}')">#${escapeHtml(t)}</span>`).join('')}</div>
     </div>` : ''}
     <div class="detail-actions">
-      <button class="btn btn-danger" onclick="deleteItem('formula','${escapeHtml(id)}')">刪除此方劑</button>
     </div>
   `;
   openModal();
@@ -475,7 +474,6 @@ function showHerbDetail(id) {
       <div>${h.commonPairings.map(p => `<span class="herb-tag clickable" onclick="searchHerb('${escapeHtml(p)}')">${escapeHtml(p)}</span>`).join('')}</div>
     </div>` : ''}
     <div class="detail-actions">
-      <button class="btn btn-danger" onclick="deleteItem('herb','${escapeHtml(id)}')">刪除此藥材</button>
     </div>
   `;
   openModal();
@@ -574,7 +572,6 @@ function showTeaDetail(id) {
     </div>` : ''}
 
     <div class="detail-actions">
-      <button class="btn btn-danger" onclick="deleteItem('tea','${escapeHtml(id)}')">刪除此茶飲</button>
     </div>
   `;
   openModal();
