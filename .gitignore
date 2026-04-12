@@ -5,3 +5,11 @@ Thumbs.db
 # Editor
 .vscode/
 *.swp
+
+# 自動更新腳本暫存檔
+.update_manifest.json
+.claude/
+
+# Node.js
+node_modules/
+package-lock.json

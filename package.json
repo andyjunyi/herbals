@@ -1,0 +1,26 @@
+{
+  "name": "herbals",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "update": "node update.js",
+    "preview": "node update.js --preview",
+    "push-only": "node update.js --push-only"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/andyjunyi/herbals.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/andyjunyi/herbals/issues"
+  },
+  "homepage": "https://github.com/andyjunyi/herbals#readme",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.88.0"
+  }
+}
