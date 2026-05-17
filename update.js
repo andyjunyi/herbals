@@ -11,8 +11,8 @@
 //    node update.js --no-push    更新本地，不推送
 //
 //  前置需求（--add 模式不需要）：
-//    npm install
-//    設定環境變數：ANTHROPIC_API_KEY=sk-ant-你的金鑰
+//    設定環境變數：DEEPSEEK_API_KEY=sk-你的金鑰
+//    Windows：setx DEEPSEEK_API_KEY "sk-你的金鑰"（設定後重新開啟終端機）
 //
 // ════════════════════════════════════════════════════════
 
@@ -26,7 +26,7 @@ const { execSync } = require('child_process');
 const DIR      = __dirname;
 const MANIFEST = path.join(DIR, '.update_manifest.json');
 const DATA_JS  = path.join(DIR, 'data.js');
-const MODEL    = 'claude-haiku-4-5-20251001';
+const MODEL    = 'deepseek-chat';
 
 const VALID_SYMPTOMS = [
   '消化不良','便秘腹脹','失眠多夢','眼睛疲勞','月經不調',
@@ -271,21 +271,45 @@ symptoms 只能從以下選擇：{symptoms}
 seasons 從 spring/summer/autumn/winter 選。
 只回傳 JSON 陣列，不含任何說明文字。資料不足則回傳 []。`;
 
-async function parseWithClaude(mdPath) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) {
-    console.log('  [!] 未設定環境變數 ANTHROPIC_API_KEY');
-    console.log('      Windows 設定方式（在命令提示字元執行）：');
-    console.log('      setx ANTHROPIC_API_KEY "sk-ant-你的金鑰"');
-    console.log('      （設定後需重新開啟終端機）');
-    return null;
-  }
+function callDeepSeek(apiKey, prompt) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      model:    MODEL,
+      messages: [{ role: 'user', content: prompt }],
+      max_tokens: 4096,
+    });
+    const req = require('https').request({
+      hostname: 'api.deepseek.com',
+      path:     '/chat/completions',
+      method:   'POST',
+      headers: {
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${apiKey}`,
+      },
+    }, res => {
+      let data = '';
+      res.on('data', chunk => data += chunk);
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          if (json.error) return reject(new Error(json.error.message || JSON.stringify(json.error)));
+          resolve(json.choices[0].message.content.trim());
+        } catch (e) { reject(e); }
+      });
+    });
+    req.on('error', reject);
+    req.write(body);
+    req.end();
+  });
+}
 
-  let Anthropic;
-  try {
-    Anthropic = require('@anthropic-ai/sdk');
-  } catch {
-    console.log('  [!] 未安裝依賴，請執行：npm install');
+async function parseWithClaude(mdPath) {
+  const apiKey = process.env.DEEPSEEK_API_KEY;
+  if (!apiKey) {
+    console.log('  [!] 未設定環境變數 DEEPSEEK_API_KEY');
+    console.log('      Windows 設定方式（在命令提示字元執行）：');
+    console.log('      setx DEEPSEEK_API_KEY "sk-你的金鑰"');
+    console.log('      （設定後需重新開啟終端機）');
     return null;
   }
 
@@ -295,16 +319,10 @@ async function parseWithClaude(mdPath) {
     .replace('{content}',  content)
     .replace('{symptoms}', VALID_SYMPTOMS.join('、'));
 
-  const client = new Anthropic({ apiKey });
-  console.log('  ⏳ Claude 解析中...');
+  console.log('  ⏳ DeepSeek 解析中...');
 
   try {
-    const msg = await client.messages.create({
-      model:      MODEL,
-      max_tokens: 4096,
-      messages:   [{ role: 'user', content: prompt }],
-    });
-    const text = msg.content[0].text.trim();
+    const text = await callDeepSeek(apiKey, prompt);
     const m    = text.match(/\[[\s\S]*\]/);
     if (!m) return [];
     return JSON.parse(m[0]);
@@ -446,16 +464,14 @@ async function main() {
         const items = await parseWithClaude(mdPath);
 
         if (items === null) {
-          console.log('   （略過解析，僅記錄已掃描）');
+          console.log('   （解析失敗，略過，下次仍會重試）');
         } else if (items.length === 0) {
           console.log('  ℹ 無法從此檔案提取結構化資料');
+          if (!PREVIEW) manifest[name] = fs.statSync(mdPath).mtimeMs;
         } else {
           const added = applyItems(items, PREVIEW);
           allAdded = allAdded.concat(added);
-        }
-
-        if (!PREVIEW) {
-          manifest[name] = fs.statSync(mdPath).mtimeMs;
+          if (!PREVIEW) manifest[name] = fs.statSync(mdPath).mtimeMs;
         }
       }
 
