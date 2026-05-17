@@ -13,6 +13,7 @@ Thumbs.db
 # 個人手冊（本機保留，不上傳）
 手冊.md
 手冊.html
+sources/手冊.md
 
 # Node.js
 node_modules/

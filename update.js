@@ -23,9 +23,10 @@ const path         = require('path');
 const readline     = require('readline');
 const { execSync } = require('child_process');
 
-const DIR      = __dirname;
-const MANIFEST = path.join(DIR, '.update_manifest.json');
-const DATA_JS  = path.join(DIR, 'data.js');
+const DIR        = __dirname;
+const SOURCES_DIR = path.join(DIR, 'sources');
+const MANIFEST   = path.join(DIR, '.update_manifest.json');
+const DATA_JS    = path.join(DIR, 'data.js');
 const MODEL    = 'deepseek-chat';
 
 const VALID_SYMPTOMS = [
@@ -443,10 +444,11 @@ async function main() {
 
   // ── 步驟 1：掃描並解析新 .md 檔案 ──────────────────
   if (!PUSH_ONLY) {
-    const mdFiles = fs.readdirSync(DIR)
-      .filter(f => f.endsWith('.md'))
-      .sort()
-      .map(f => path.join(DIR, f));
+    const scanMds = dir => fs.readdirSync(dir, { withFileTypes: true })
+      .flatMap(e => e.isDirectory()
+        ? scanMds(path.join(dir, e.name))
+        : e.name.endsWith('.md') ? [path.join(dir, e.name)] : []);
+    const mdFiles = scanMds(SOURCES_DIR).sort();
 
     const newMds = mdFiles.filter(f => {
       const name  = path.basename(f);
