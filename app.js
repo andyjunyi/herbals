@@ -33,6 +33,16 @@ function loadDB() {
       parsed.herbs.forEach(h => {
         if (!h.symptoms) h.symptoms = [];
       });
+      // Merge new entries from INITIAL_DATA that are not yet in stored data
+      INITIAL_DATA.formulas.forEach(f => {
+        if (!parsed.formulas.find(x => x.id === f.id)) parsed.formulas.push(f);
+      });
+      INITIAL_DATA.herbs.forEach(h => {
+        if (!parsed.herbs.find(x => x.id === h.id)) parsed.herbs.push(h);
+      });
+      INITIAL_DATA.teas.forEach(t => {
+        if (!parsed.teas.find(x => x.id === t.id)) parsed.teas.push(t);
+      });
       localStorage.setItem(DB_KEY, JSON.stringify(parsed));
       return parsed;
     } catch (e) {
