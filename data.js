@@ -1643,6 +1643,185 @@ const INITIAL_DATA = {
         "低價配方",
         "養生茶"
       ]
+    },
+    {
+      id: "t029",
+      name: "陳皮山楂消食茶",
+      category: "消食茶",
+      difficulty: "簡易",
+      ingredients: [
+        { item: "陳皮", amount: "5克" },
+        { item: "山楂", amount: "10克" },
+        { item: "熱水", amount: "500毫升" }
+      ],
+      instructions: [
+        "陳皮與山楂洗淨，放入杯中",
+        "注入沸水，蓋蓋悶泡10分鐘即可",
+        "可反覆沖泡2-3次"
+      ],
+      effects: ["消食健胃", "行氣散瘀", "降脂減重", "促進食慾"],
+      indications: "適合飯後脹氣、消化不良、食慾不振、油膩飲食後飲用。",
+      bestTime: "餐後30分鐘",
+      contraindications: "胃酸過多、胃潰瘍者慎用；孕婦忌用山楂；脾胃虛弱者減量。",
+      suitableFor: ["飯後脹氣", "消化不良", "食慾不振"],
+      pairings: [],
+      seasons: ["春", "夏", "秋", "冬"],
+      symptoms: ["消化不良", "便秘腹脹"],
+      tags: ["陳皮", "山楂", "消食", "健胃", "降脂"]
+    },
+    {
+      id: "t030",
+      name: "陳皮大棗養血茶",
+      category: "補養茶",
+      difficulty: "簡易",
+      ingredients: [
+        { item: "陳皮", amount: "5克" },
+        { item: "大棗（去核）", amount: "5顆" },
+        { item: "清水", amount: "500毫升" }
+      ],
+      instructions: [
+        "陳皮洗淨，大棗去核",
+        "將材料放入鍋中加水煮沸",
+        "轉小火煮20分鐘，濾渣取湯飲用"
+      ],
+      effects: ["補氣養血", "健脾和胃", "改善手腳冰冷", "安神"],
+      indications: "適合脾胃虛弱、氣血不足、手腳冰冷、面色蒼白者。",
+      bestTime: "上午或下午溫飲",
+      contraindications: "實熱體質（口乾舌燥、便秘）者慎用；感冒發燒期間暫停。",
+      suitableFor: ["氣虛疲勞", "手腳冰冷"],
+      pairings: [
+        { add: "生薑3片", reason: "加強暖身效果" }
+      ],
+      seasons: ["秋", "冬"],
+      symptoms: ["消化不良", "手腳冰冷"],
+      tags: ["陳皮", "大棗", "補氣", "養血", "暖身"]
+    },
+    {
+      id: "t031",
+      name: "陳皮菊花清潤茶",
+      category: "清熱茶",
+      difficulty: "簡易",
+      ingredients: [
+        { item: "陳皮", amount: "5克" },
+        { item: "菊花", amount: "5克" },
+        { item: "熱水", amount: "500毫升" }
+      ],
+      instructions: [
+        "陳皮與菊花略沖洗，放入杯中",
+        "注入沸水，蓋蓋浸泡15分鐘即可",
+        "可反覆沖泡2次"
+      ],
+      effects: ["清熱潤喉", "疏風散熱", "化痰止咳", "明目"],
+      indications: "適合咽喉腫痛、咳嗽有痰、眼睛乾澀、熬夜上火者。",
+      bestTime: "早晚溫飲",
+      contraindications: "脾胃虛寒腹瀉者少飲；菊花偏涼，體質虛寒可加枸杞平衡。",
+      suitableFor: ["咽喉護嗓", "眼睛疲勞", "上火口乾"],
+      pairings: [
+        { add: "枸杞10粒", reason: "加強護眼，平衡菊花寒性" }
+      ],
+      seasons: ["春", "夏"],
+      symptoms: ["眼睛疲勞", "上火口乾", "咽喉護嗓"],
+      tags: ["陳皮", "菊花", "清熱", "潤喉", "明目"]
+    },
+    {
+      id: "t032",
+      name: "陳皮檸檬代謝茶",
+      category: "清熱茶",
+      difficulty: "簡易",
+      ingredients: [
+        { item: "陳皮", amount: "5克" },
+        { item: "檸檬", amount: "半顆" },
+        { item: "熱水", amount: "500毫升" }
+      ],
+      instructions: [
+        "陳皮洗淨，用沸水沖泡5分鐘",
+        "待水溫降至60°C以下，加入檸檬汁",
+        "可加少許蜂蜜調味"
+      ],
+      effects: ["促進代謝", "預防上火", "潤喉止咳", "美白養顏"],
+      indications: "適合咽喉不適、預防上火、促進代謝、日常保養者。",
+      bestTime: "天氣燥熱時或下午飲用",
+      contraindications: "胃酸過多、胃潰瘍者慎用；檸檬酸性強，注意保護牙釉質。",
+      suitableFor: ["咽喉護嗓", "上火口乾"],
+      pairings: [],
+      seasons: ["春", "夏"],
+      symptoms: ["上火口乾", "咽喉護嗓"],
+      tags: ["陳皮", "檸檬", "代謝", "潤喉", "養顏"]
+    },
+    {
+      id: "t033",
+      name: "陳皮茯苓祛濕茶",
+      category: "祛濕茶",
+      difficulty: "簡易",
+      ingredients: [
+        { item: "陳皮", amount: "3克" },
+        { item: "茯苓", amount: "6克" },
+        { item: "清水", amount: "500毫升" }
+      ],
+      instructions: [
+        "陳皮與茯苓洗淨，放入鍋中",
+        "加水煮沸後轉小火煮15-20分鐘",
+        "濾渣取湯，溫熱飲用"
+      ],
+      effects: ["健脾祛濕", "燥濕化痰", "利水消腫", "消除疲倦"],
+      indications: "適合體內濕氣重、容易水腫、疲倦乏力、大便黏膩、舌苔厚膩者。",
+      bestTime: "上午飲用效果最佳",
+      contraindications: "陰虛火旺者慎用陳皮；腎功能異常者慎用茯苓；孕婦慎用。",
+      suitableFor: ["氣虛疲勞", "消化不良"],
+      pairings: [],
+      seasons: ["春", "夏"],
+      symptoms: ["消化不良", "便秘腹脹"],
+      tags: ["陳皮", "茯苓", "祛濕", "健脾", "化痰"]
+    },
+    {
+      id: "t034",
+      name: "陳皮洛神花解暑茶",
+      category: "清熱茶",
+      difficulty: "簡易",
+      ingredients: [
+        { item: "陳皮", amount: "2片" },
+        { item: "洛神花", amount: "3-5朵" },
+        { item: "熱水", amount: "500毫升" }
+      ],
+      instructions: [
+        "陳皮與洛神花放入杯中",
+        "注入熱水，蓋蓋悶泡5分鐘",
+        "可加少許冰糖調味，冷藏後更解暑"
+      ],
+      effects: ["清熱解暑", "幫助排濕", "生津止渴", "降血壓"],
+      indications: "適合口乾舌燥、暑熱煩悶、夏天濕熱、幫助排濕者。",
+      bestTime: "天氣燥熱時，午後冰飲或常溫飲用",
+      contraindications: "洛神花偏涼，脾胃虛寒、容易腹瀉者少飲；孕婦慎用；低血壓者注意。",
+      suitableFor: ["上火口乾", "消化不良"],
+      pairings: [],
+      seasons: ["夏"],
+      symptoms: ["上火口乾"],
+      tags: ["陳皮", "洛神花", "解暑", "排濕", "清熱"]
+    },
+    {
+      id: "t035",
+      name: "陳皮枸杞養肝茶",
+      category: "補養茶",
+      difficulty: "簡易",
+      ingredients: [
+        { item: "陳皮", amount: "6克" },
+        { item: "枸杞", amount: "10克" },
+        { item: "熱水", amount: "500毫升" }
+      ],
+      instructions: [
+        "陳皮與枸杞洗淨，放入杯中",
+        "注入沸水，蓋蓋悶泡10分鐘",
+        "可反覆沖泡2-3次，枸杞可食用"
+      ],
+      effects: ["養肝明目", "滋補肝腎", "理氣健脾", "日常保養"],
+      indications: "適合用眼過度、肝血不足、日常保養、加班熬夜工作者。",
+      bestTime: "工作間隙沖泡，下午飲用佳",
+      contraindications: "感冒發燒、身體有炎症時暫停；脾胃虛弱者適量。",
+      suitableFor: ["眼睛疲勞", "壓力鬱悶", "氣虛疲勞"],
+      pairings: [],
+      seasons: ["春", "秋", "冬"],
+      symptoms: ["眼睛疲勞", "氣虛疲勞"],
+      tags: ["陳皮", "枸杞", "養肝", "明目", "日常保養"]
     }
   ]
 };
